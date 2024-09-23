@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跑酷遊戲</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #87CEEB;
+        }
+        #gameCanvas {
+            display: block;
+            margin: auto;
+            background-color: #fff;
+            border: 2px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 增加玩家的移動速度
+        let player = { x: 50, y: 500, width: 30, height: 30, speed: 10 };
+        let obstacles = [];
+        let score = 0;
+
+        function createObstacle() {
+            const obstacle = {
+                x: Math.random() * (canvas.width - 30),
+                y: 0,
+                width: 30,
+                height: 30,
+                speed: 2 + Math.random() * 3
+            };
+            obstacles.push(obstacle);
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = 'red';
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                obstacle.y += obstacle.speed;
+            });
+        }
+
+        function checkCollision() {
+            obstacles.forEach(obstacle => {
+                if (player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
+                    alert('遊戲結束！分數: ' + score);
+                    document.location.reload();
+                }
+            });
+        }
+
+        function updateScore() {
+            score++;
+            ctx.fillStyle = 'black';
+            ctx.fillText('分數: ' + score, 10, 20);
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawObstacles();
+            checkCollision();
+            updateScore();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft' && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (event.key === 'ArrowRight' && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+        });
+
+        // 將間隔設置為 2000 毫秒（2 秒）
+        setInterval(createObstacle, 2000);
+        gameLoop();
+    </script>
+</body>
+</html>
